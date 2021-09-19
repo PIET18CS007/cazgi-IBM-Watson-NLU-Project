@@ -12,13 +12,25 @@ app.use(cors_app());
 /*Uncomment the following lines to loan the environment 
 variables that you set up in the .env file*/
 
-// const dotenv = require('dotenv');
-// dotenv.config();
+ const dotenv = require('dotenv');
+ dotenv.config();
 
-// const api_key = process.env.API_KEY;
-// const api_url = process.env.API_URL;
+ const api_key = process.env.API_KEY;
+ const api_url = process.env.API_URL;
 
 function getNLUInstance() {
+    let api_key=process.env.API_KEY;
+    let api_url=process.env.API_URL;
+    const NaturalLanguageUndrstandingV1=require('ibm-watson/natural-language-understanding/v1');
+    const{ IamAuthenticator} = require('ibm-watson/auth');
+    const naturalLanguageUnderstanding = new NaturalLanguageUndrstandingV1({
+        version: '2020-08-01',
+        authenticator:new IamAuthenticator({
+            apikey:api_key,
+        }),
+        serviceUrl: api_url,
+    });
+    return naturalLanguageUnderstanding;
     /*Type the code to create the NLU instance and return it.
     You can refer to the image in the instructions document
     to do the same.*/
@@ -45,18 +57,18 @@ app.get("/url/emotion", (req,res) => {
     //         }
     //     }
      
-    //  const naturalLanguageUnderstanding = getNLUInstance();
+    
+    const naturalLanguageUnderstanding = getNLUInstance();
      
-    //  naturalLanguageUnderstanding.analyze(analyzeParams)
-    //  .then(analysisResults => {
-    //     //Print the JSON returned by NLU instance as a formatted string
-    //     console.log(JSON.stringify(analysisResults.result.keywords[0].emotion,null,2));
-    //     //Please refer to the image to see the order of retrieval
-    //     return res.send(analysisResults.result.keywords[0].emotion,null,2);
-    //  })
-    //  .catch(err => {
-    //  return res.send("Could not do desired operation "+err);
-    //  });
+     naturalLanguageUnderstanding.analyze(analyzeParams)
+     .then(analysisResults => {
+         //Print the JSON returned by NLU instance as a formatted string
+        console.log(JSON.stringify(analysisResults.result.keywords[0].emotion,null,2));
+         return res.send(analysisResults.result.keywords[0].emotion,null,2);
+      })
+      .catch(err => {
+      return res.send("Could not do desired operation "+err);
+      });
 });
 
 //The endpoint for the webserver ending with /url/sentiment
